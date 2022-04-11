@@ -34,7 +34,7 @@ steps:
   - name: dot-kube
     path: /root/.kube
 
-- name: terraform plan
+- name: terraform plan (${DRONE_TARGET_BRANCH})
   image: hashicorp/terraform:1.1.8
   commands:
   - terraform plan -var-file="${DRONE_TARGET_BRANCH}.tfvars"
@@ -45,7 +45,7 @@ steps:
     event:
     - pull_request
 
-- name: terraform apply
+- name: terraform apply (${DRONE_TARGET_BRANCH})
   image: hashicorp/terraform:1.1.8
   commands:
   - terraform apply -auto-approve -var-file="${DRONE_TARGET_BRANCH}.tfvars"
