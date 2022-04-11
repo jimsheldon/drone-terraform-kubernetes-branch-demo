@@ -26,7 +26,7 @@ resource "kubernetes_deployment" "podinfo" {
       spec {
         container {
           name  = "podinfod"
-          image = "ghcr.io/stefanprodan/podinfo:${var.podinfo_version}"
+          image = "ghcr.io/stefanprodan/podinfo:6.1.1"
           command = [
             "./podinfo",
             "--port=9898",
@@ -58,11 +58,11 @@ resource "kubernetes_deployment" "podinfo" {
 
           env {
             name  = "PODINFO_UI_MESSAGE"
-            value = "Namespace is ${var.namespace} and version is ${var.podinfo_version}"
+            value = "Namespace is ${var.namespace}"
           }
           env {
             name  = "PODINFO_UI_COLOR"
-            value = "#34577c"
+            value = var.ui_color
           }
 
           resources {

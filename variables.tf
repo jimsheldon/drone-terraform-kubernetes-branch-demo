@@ -2,6 +2,8 @@ variable "namespace" {
   type = string
 }
 
-variable "podinfo_version" {
+variable "ui_color" {
   type = string
+
+  default = "#34577c"
 }

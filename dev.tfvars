@@ -1,2 +1,2 @@
 namespace = "demo-dev"
-podinfo_version = "6.1.0"
+ui_color = "#85c183"
