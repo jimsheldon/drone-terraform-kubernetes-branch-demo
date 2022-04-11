@@ -1,4 +1,4 @@
-# drone-terraform-kubernetes-branch-demo
+# drone-terraform-kubernetes-promote-demo
 
 This repository demonstrates an example workflow of a [Kubernetes](https://kubernetes.io) deployment and service managed by the Kubernetes [Terraform](https://www.terraform.io) [provider](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs).
 
