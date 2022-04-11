@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "podinfo" {
 
           env {
             name  = "PODINFO_UI_MESSAGE"
-            value = "running in ${var.namespace} namespace"
+            value = "running in ${var.namespace} namespace!"
           }
           env {
             name  = "PODINFO_UI_COLOR"
