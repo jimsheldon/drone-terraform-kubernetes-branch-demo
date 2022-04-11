@@ -74,3 +74,4 @@ trigger:
   - main
   event:
   - promote
+  - pull_request
