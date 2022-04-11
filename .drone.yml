@@ -1,5 +1,5 @@
 kind: pipeline
-name: default
+name: demo-dev
 
 # remove this section if your CPU is amd64 architecture
 platform:
@@ -29,7 +29,7 @@ steps:
 - name: terraform init
   image: hashicorp/terraform:1.1.8
   commands:
-  - terraform init -backend-config="secret_suffix=${DRONE_TARGET_BRANCH}" -backend-config="namespace=demo-${DRONE_TARGET_BRANCH}"
+  - terraform init -backend-config="secret_suffix=dev" -backend-config="namespace=demo-dev"
   volumes:
   - name: dot-kube
     path: /root/.kube
@@ -45,7 +45,7 @@ steps:
     event:
     - pull_request
 
-- name: terraform apply (dev)
+- name: terraform apply
   image: hashicorp/terraform:1.1.8
   commands:
   - terraform apply -auto-approve -var-file="dev.tfvars"
@@ -56,7 +56,48 @@ steps:
     branch:
     - main
 
-- name: terraform apply (prod)
+trigger:
+  branch:
+  - main
+
+---
+kind: pipeline
+name: demo-prod
+
+# remove this section if your CPU is amd64 architecture
+platform:
+  os: linux
+  arch: arm64
+
+concurrency:
+  limit: 1
+
+volumes:
+- name: dot-kube
+  temp: {}
+
+steps:
+
+- name: kube config
+  image: alpine:3
+  environment:
+    KUBE_CONFIG:
+      from_secret: kube_config
+  commands:
+  - echo $KUBE_CONFIG | base64 -d > ~/.kube/config
+  volumes:
+  - name: dot-kube
+    path: /root/.kube
+
+- name: terraform init (dev)
+  image: hashicorp/terraform:1.1.8
+  commands:
+  - terraform init -backend-config="secret_suffix=prod" -backend-config="namespace=demo-prod"
+  volumes:
+  - name: dot-kube
+    path: /root/.kube
+
+- name: terraform apply
   image: hashicorp/terraform:1.1.8
   commands:
   - terraform apply -auto-approve -var-file="prod.tfvars"
@@ -70,8 +111,7 @@ steps:
     - prod
 
 trigger:
-  branch:
-  - main
   event:
   - promote
-  - pull_request
+  target:
+  - prod
