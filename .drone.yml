@@ -1,0 +1,62 @@
+kind: pipeline
+name: default
+
+# remove this section if your CPU is amd64 architecture
+platform:
+  os: linux
+  arch: arm64
+
+concurrency:
+  limit: 1
+
+volumes:
+- name: dot-kube
+  temp: {}
+
+steps:
+
+- name: kube config
+  image: alpine:3
+  environment:
+    KUBE_CONFIG:
+      from_secret: kube_config
+  commands:
+  - echo $KUBE_CONFIG | base64 -d > ~/.kube/config
+  volumes:
+  - name: dot-kube
+    path: /root/.kube
+
+- name: terraform init
+  image: hashicorp/terraform:1.1.8
+  commands:
+  - terraform init -backend-config="secret_suffix=${DRONE_TARGET_BRANCH}" -backend-config="namespace=demo-${DRONE_TARGET_BRANCH}"
+  volumes:
+  - name: dot-kube
+    path: /root/.kube
+
+- name: terraform plan
+  image: hashicorp/terraform:1.1.8
+  commands:
+  - terraform plan -var-file="${DRONE_TARGET_BRANCH}.tfvars"
+  volumes:
+  - name: dot-kube
+    path: /root/.kube
+  when:
+    event:
+    - pull_request
+
+- name: terraform apply
+  image: hashicorp/terraform:1.1.8
+  commands:
+  - terraform apply -auto-approve -var-file="${DRONE_TARGET_BRANCH}.tfvars"
+  volumes:
+  - name: dot-kube
+    path: /root/.kube
+  when:
+    event:
+    - push
+
+trigger:
+  branch:
+  - dev
+  - prod
