@@ -74,5 +74,3 @@ trigger:
   - main
   event:
   - promote
-  target:
-  - prod
