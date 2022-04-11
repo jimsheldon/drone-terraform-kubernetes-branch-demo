@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "podinfo" {
 
           env {
             name  = "PODINFO_UI_MESSAGE"
-            value = "Namespace is ${var.namespace}, version is ${var.podinfo_version}"
+            value = "Namespace is ${var.namespace} and version is ${var.podinfo_version}"
           }
           env {
             name  = "PODINFO_UI_COLOR"
