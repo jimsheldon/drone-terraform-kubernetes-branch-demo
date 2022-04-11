@@ -53,8 +53,8 @@ steps:
   - name: dot-kube
     path: /root/.kube
   when:
-    branch:
-    - main
+    event:
+    - push
 
 trigger:
   branch:
