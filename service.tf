@@ -1,6 +1,6 @@
 resource "kubernetes_service" "podinfo" {
   metadata {
-    name      = "podinfo"
+    name      = "podinfo-promote"
     namespace = var.namespace
   }
 
@@ -20,7 +20,7 @@ resource "kubernetes_service" "podinfo" {
     }
 
     selector = {
-      app = "podinfo"
+      app = "podinfo-promote"
     }
 
     type = "ClusterIP"
