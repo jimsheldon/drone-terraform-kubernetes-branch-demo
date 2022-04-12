@@ -26,6 +26,11 @@ steps:
   - name: dot-kube
     path: /root/.kube
 
+- name: terraform fmt
+  image: hashicorp/terraform:1.1.8
+  commands:
+  - terraform fmt -check
+
 - name: terraform init
   image: hashicorp/terraform:1.1.8
   commands:
