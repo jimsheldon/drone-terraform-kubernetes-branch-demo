@@ -94,7 +94,7 @@ steps:
     - pull_request
 
 ################################################################################
-# run 'terraform apply' using 'dev.tfvars' on push events (the 'trigger' section=
+# run 'terraform apply' using 'dev.tfvars' on push events (the 'trigger' section
 # ensures that only changes to the 'main' branch will trigger this pipeline, so
 # this step does not need an explicit reference to the 'main' branch)
 ################################################################################
