@@ -1,6 +1,6 @@
 resource "kubernetes_deployment" "podinfo" {
   metadata {
-    name      = "podinfo"
+    name      = "podinfo-promote"
     namespace = var.namespace
   }
 
