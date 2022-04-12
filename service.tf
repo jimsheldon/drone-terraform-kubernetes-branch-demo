@@ -20,7 +20,7 @@ resource "kubernetes_service" "podinfo" {
     }
 
     selector = {
-      app = "podinfo"
+      app = "podinfo-promote"
     }
 
     type = "ClusterIP"
