@@ -59,20 +59,14 @@ steps:
     path: /root/.kube
 
 ################################################################################
-# run a terraform format check to ensure the configuration formatting is
-# consistent
-################################################################################
-- name: terraform fmt
-  image: hashicorp/terraform:1.1.8
-  commands:
-  - terraform fmt -check
-
-################################################################################
-# run 'terraform init' with the necessary backend configuration for kubernetes
+# run 'terraform fmt -check' to ensure consistent formatting, then run
+# 'terraform init' with the necessary backend configuration for the kubernetes
+# backend
 ################################################################################
 - name: terraform init
   image: hashicorp/terraform:1.1.8
   commands:
+  - terraform fmt -check
   - terraform init -backend-config="secret_suffix=dev" -backend-config="namespace=demo-dev"
   volumes:
   - name: dot-kube
@@ -167,11 +161,14 @@ steps:
     path: /root/.kube
 
 ################################################################################
-# run 'terraform init' with the necessary backend configuration for kubernetes
+# run 'terraform fmt -check' to ensure consistent formatting, then run
+# 'terraform init' with the necessary backend configuration for the kubernetes
+# backend
 ################################################################################
 - name: terraform init
   image: hashicorp/terraform:1.1.8
   commands:
+  - terraform fmt -check
   - terraform init -backend-config="secret_suffix=prod" -backend-config="namespace=demo-prod"
   volumes:
   - name: dot-kube
