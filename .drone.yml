@@ -1,36 +1,75 @@
+################################################################################
+# the demo-dev pipeline runs on commits to the 'main' branch, or pull requests
+# where the 'main' branch is the target
+################################################################################
 kind: pipeline
 name: demo-dev
 
-# remove this section if your CPU is amd64 architecture
+################################################################################
+# trigger this pipeline on commits to the 'main' branch (or on pull requests
+# where the target branch is 'main), also exclude 'promote' events, which are
+# handled by the 'demo-prod' pipeline below)
+################################################################################
+trigger:
+  branch:
+  - main
+  event:
+    exclude:
+    - promote
+
+################################################################################
+# remove this 'platform' section if your CPU is amd64 architecture
+################################################################################
 platform:
   os: linux
   arch: arm64
 
+################################################################################
+# limit 'concurrency' to 1 to ensure only one pipeline runs at a time
+################################################################################
 concurrency:
   limit: 1
 
+################################################################################
+# create a temporary volume that will be used to share the /root/.kube directory
+# between pipeline steps
+################################################################################
 volumes:
 - name: dot-kube
   temp: {}
 
+################################################################################
+# pipeline steps start here
+################################################################################
 steps:
 
+################################################################################
+# read the 'kube_config' secret which contains the kubernetes config file,
+# base64-encoded, and write it to /root/.kube/config
+################################################################################
 - name: kube config
   image: alpine:3
   environment:
     KUBE_CONFIG:
       from_secret: kube_config
   commands:
-  - echo $KUBE_CONFIG | base64 -d > ~/.kube/config
+  - echo $KUBE_CONFIG | base64 -d > /root/.kube/config
   volumes:
   - name: dot-kube
     path: /root/.kube
 
+################################################################################
+# run a terraform format check to ensure the configuration formatting is
+# consistent
+################################################################################
 - name: terraform fmt
   image: hashicorp/terraform:1.1.8
   commands:
   - terraform fmt -check
 
+################################################################################
+# run 'terraform init' with the necessary backend configuration for kubernetes
+################################################################################
 - name: terraform init
   image: hashicorp/terraform:1.1.8
   commands:
@@ -39,6 +78,10 @@ steps:
   - name: dot-kube
     path: /root/.kube
 
+################################################################################
+# run 'terraform plan' using 'dev.tfvars' in pull requests to show what will be
+# changed
+################################################################################
 - name: terraform plan
   image: hashicorp/terraform:1.1.8
   commands:
@@ -50,6 +93,11 @@ steps:
     event:
     - pull_request
 
+################################################################################
+# run 'terraform apply' using 'dev.tfvars' on push events (the 'trigger' section=
+# ensures that only changes to the 'main' branch will trigger this pipeline, so
+# this step does not need an explicit reference to the 'main' branch)
+################################################################################
 - name: terraform apply
   image: hashicorp/terraform:1.1.8
   commands:
@@ -61,31 +109,52 @@ steps:
     event:
     - push
 
-trigger:
-  branch:
-  - main
-  event:
-    exclude:
-    - promote
-
 ---
+################################################################################
+# the 'demo-prod' pipeline runs on 'promote' events
+################################################################################
 kind: pipeline
 name: demo-prod
 
-# remove this section if your CPU is amd64 architecture
+################################################################################
+# trigger this pipeline on 'promote' events where 'prod' is the target
+################################################################################
+trigger:
+  event:
+  - promote
+  target:
+  - prod
+
+################################################################################
+# remove this 'platform' section if your CPU is amd64 architecture
+################################################################################
 platform:
   os: linux
   arch: arm64
 
+################################################################################
+# limit 'concurrency' to 1 to ensure only one pipeline runs at a time
+################################################################################
 concurrency:
   limit: 1
 
+################################################################################
+# create a temporary volume that will be used to share the /root/.kube directory
+# between pipeline steps
+################################################################################
 volumes:
 - name: dot-kube
   temp: {}
 
+################################################################################
+# pipeline steps start here
+################################################################################
 steps:
 
+################################################################################
+# read the 'kube_config' secret which contains the kubernetes config file,
+# base64-encoded, and write it to /root/.kube/config
+################################################################################
 - name: kube config
   image: alpine:3
   environment:
@@ -97,6 +166,9 @@ steps:
   - name: dot-kube
     path: /root/.kube
 
+################################################################################
+# run 'terraform init' with the necessary backend configuration for kubernetes
+################################################################################
 - name: terraform init
   image: hashicorp/terraform:1.1.8
   commands:
@@ -105,6 +177,10 @@ steps:
   - name: dot-kube
     path: /root/.kube
 
+################################################################################
+# run 'terraform apply' using 'prod.tfvars' on 'promote' events where 'prod' is
+# the target
+################################################################################
 - name: terraform apply
   image: hashicorp/terraform:1.1.8
   commands:
@@ -117,9 +193,3 @@ steps:
     - promote
     target:
     - prod
-
-trigger:
-  event:
-  - promote
-  target:
-  - prod
