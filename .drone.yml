@@ -7,7 +7,7 @@ name: demo-dev
 
 ################################################################################
 # trigger this pipeline on commits to the 'main' branch (or on pull requests
-# where the target branch is 'main), also exclude 'promote' events, which are
+# where the target branch is 'main'), also exclude 'promote' events, which are
 # handled by the 'demo-prod' pipeline below)
 ################################################################################
 trigger:
