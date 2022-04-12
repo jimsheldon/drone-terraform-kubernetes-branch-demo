@@ -26,7 +26,7 @@ resource "kubernetes_deployment" "podinfo" {
       spec {
         container {
           name  = "podinfod"
-          image = "ghcr.io/stefanprodan/podinfo:6.1.1"
+          image = "ghcr.io/stefanprodan/podinfo:6.1.0"
           command = [
             "./podinfo",
             "--port=9898",
